@@ -1,4 +1,6 @@
 /**
+ * https://github.com/udacity/reactnd-project-myreads-starter
+ *
  * Created by vectorzeng on 17/7/6.
  */
 import React,{Component} from "react";
