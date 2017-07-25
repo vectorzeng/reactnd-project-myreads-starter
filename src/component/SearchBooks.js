@@ -32,27 +32,42 @@ export default class SearchBooks extends Component {
     }
 
     onChangeKw=(event)=>{
-        this.setState({
-            kw:event.target.value,
-        });
-        if(this.timeoutRet){
+
+        let kw = event.target.value;
+        let isLoading = Boolean(kw);//if kw is empty , need not to load
+        let books = isLoading?this.state.books:null;//if kw is empty then show no books
+
+        if(this.timeoutRet !== null && this.timeoutRet !== undefined){
             clearTimeout(this.timeoutRet);
+            this.timeoutRet = null;
         }
 
-        this.setState({
-            isLoading:true,
-        });
-        this.timeoutRet = setTimeout(()=>{
+        if(isLoading) {
+            this.timeoutRet = setTimeout(() => {
+                if (this.state.kw) {
+                    console.warn("search kw:", this.state.kw);
+                    search(this.state.kw, 30).then((books) => {
+                        if(this.state.kw === kw){//if kw is changed ,drop it
+                            this.updateBooks(books);
+                        }else{
+                            console.warn("search fetched kw is empty, then do nothing");
+                        }
+                    });
+                } else {
+                    // do nothing
+                    console.warn("search kw is null do nothing", this.state.kw);
+                }
+            }, 300);
 
-            if(this.state.kw) {
-                console.warn("search kw:", this.state.kw);
-                search(this.state.kw, 30).then((books) => {
-                    this.updateBooks(books);
-                });
-            }else{
-                // do nothing
-            }
-        }, 300);
+            console.log("onChangeKw-------setTimeout", this.state.kw, this.timeoutRet);
+        }
+
+
+        this.setState({
+            isLoading:isLoading,
+            kw,
+            books,
+        });
 
     };
 
