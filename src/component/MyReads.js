@@ -7,18 +7,51 @@ import {Link} from "react-router-dom";
 import {PATH_SEARCH} from "../path/RoutePath";
 import {getAll} from "../BooksAPI";
 import {getShelfTitle} from "../util/Util";
+import BOOK_UPDATER from "../util/BookUpdater";
+import BookBean from "../bean/BookBean";
+
 export default class MyReads extends Component{
 
     constructor(props){
         super(props);
         this.state = {
-            shelves:{}//map of data
+            /**
+             * {
+             *  currentlyReading:[b1,b2……]
+             *  wantToRead:[b3,b4……]
+             *  ……
+             * }
+             *
+             * */
+            shelves:{}
         };
     }
 
+    onBookUpdate = (succeed,newShelf,bean) => {
+        console.log("-------onBookUpdate1", succeed, newShelf, bean);
+        if(succeed){//change shelf succeed
+            let oldShelf = BookBean.getShelf(bean);
+            let newStateShelves = this.state.shelves;
+            //remove bean from oldShelf
+            newStateShelves[oldShelf] = newStateShelves[oldShelf].filter((e)=>{
+                return e !== bean;
+            });
+            //change bean
+            BookBean.setShelf(bean, newShelf);
+            //add bean from oldShelf
+            if(!newStateShelves[newShelf]){
+                newStateShelves[newShelf] = [];
+            }
+            newStateShelves[newShelf].push(bean);
+            //update state
+            this.setState({shelves:newStateShelves});
+            return true;
+        }
+    };
+
     componentDidMount(){
+        BOOK_UPDATER.setListener(this.onBookUpdate);
         getAll().then((books)=>{
-            console.log("------- MyReads", books);
             let shelves = {};
             if(books && !books.error){
                 books.map((e)=>{
@@ -37,7 +70,7 @@ export default class MyReads extends Component{
     }
 
     componentWillUnmount(){
-        console.log("MyReads-------componentWillUnmount");
+        BOOK_UPDATER.setListener(null);
     }
 
     render(){

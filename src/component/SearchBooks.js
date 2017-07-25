@@ -19,9 +19,6 @@ export default class SearchBooks extends Component {
         };
     }
 
-    componentWillUnmount(){
-        console.log("SearchBooks-------componentWillUnmount");
-    }
 
     updateBooks(books){
         console.log("---------SearchBooks", books);

@@ -4,6 +4,7 @@
 
 import React, {Component} from "react";
 import Book from "./Book";
+import BookBean from "../bean/BookBean";
 
 export default class BookGrid extends Component {
 
@@ -12,7 +13,8 @@ export default class BookGrid extends Component {
         let items = null;
         if (books) {
             items = books.map((book, i) => {
-                return <li key={i}>
+                let key = BookBean.getId(book);
+                return <li key={key}>
                     <Book bookBean={book}/>
                 </li>;
             });

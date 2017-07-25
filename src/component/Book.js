@@ -6,7 +6,8 @@ import React, {Component} from "react"
 import PropTypes from "prop-types";
 import BookBean from "../bean/BookBean";
 import {update} from "../BooksAPI";
-import {SHELVES_VALUES} from "../util/Util"
+import {SHELVES_VALUES} from "../util/Util";
+import BOOK_UPDATER from "../util/BookUpdater";
 
 export default class Book extends Component {
 
@@ -25,6 +26,7 @@ export default class Book extends Component {
         }
         this.state = {
             shelf:shelf,
+            isUpdating:false,
         }
     }
 
@@ -42,26 +44,20 @@ export default class Book extends Component {
     handleChange = (e) =>{
         let shelf = e.target.value;
         const bean = this.props.bookBean;
-        console.log(shelf);
-        update(bean, shelf).then((e)=>{
-            let array = e[shelf];
-            if(array){
-                let i = array.length-1;
-                for(; i >=0; i--){
-                    if(bean.id === array[i]){//update succeed
-                        console.log("handleChange3 update shelf succeed");
-                        // BookBean.setShelf(bean, shelf);
-                        this.setState({
-                            shelf,
-                        });
-                        break;
-                    }
-                }
-                if(i < 0){
-                    alert("change shelf failed");
-                }
-
+        this.setState({
+            isUpdating:true
+        });
+        BOOK_UPDATER.updateShelf(bean, shelf, (succeed, newShelf)=>{
+            if(succeed){
+                this.setState({
+                    shelf:newShelf,
+                });
+            }else{
+                alert("change shelf failed");
             }
+            this.setState({
+                isUpdating:false
+            });
         });
     };
 
@@ -84,7 +80,9 @@ export default class Book extends Component {
                 <a className="book-cover" style={style.cover}
                    href={BookBean.getInfoLink(bookBean)} target="_blank"/>
                 <div className="book-shelf-changer">
-                    <select name="shelf" value={this.state.shelf} onChange={this.handleChange}>
+                    <select name="shelf" value={this.state.shelf}
+                            onChange={this.handleChange}
+                            disabled={this.state.isUpdating}>
                         {opts}
                     </select>
                 </div>
