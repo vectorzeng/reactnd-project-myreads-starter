@@ -8,6 +8,7 @@ export default class BookBean{
         this.imageLinks = {smallThumbnail: "", thumbnail: ""};
         this.infoLink = "";
         this.title = "title";
+        this.shelf = "";
     }
 
     static getAuthors(b){
@@ -24,5 +25,17 @@ export default class BookBean{
 
     static getTitle(b){
         if(b) return b.title;
+    }
+
+    static getShelf(b){
+        if(b) return b.shelf;
+    }
+
+    static setShelf(b, shelf){
+        if(b) b.shelf = shelf;
+    }
+
+    static getId(b){
+        if(b) return b.id;
     }
 }

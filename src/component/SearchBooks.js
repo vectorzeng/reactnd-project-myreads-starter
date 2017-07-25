@@ -15,32 +15,19 @@ export default class SearchBooks extends Component {
         this.state = {
             books:[],/*BookBean 's array*/
             kw:"",
-            isLoading:true,
+            isLoading:false,
         };
     }
 
     updateBooks(books){
         console.log("---------SearchBooks", books);
-        if(books.error){
+        if(!books || books.error){
             books = null;//get nothing
         }
         this.setState({
             books:books,
             isLoading:false,
         });
-    }
-
-    searchAll(){
-        this.setState({
-            isLoading:true,
-        });
-        getAll().then((books)=>{
-            this.updateBooks(books);
-        });
-    }
-
-    componentDidMount(){
-        this.searchAll();
     }
 
     onChangeKw=(event)=>{
@@ -62,9 +49,9 @@ export default class SearchBooks extends Component {
                     this.updateBooks(books);
                 });
             }else{
-                this.searchAll();
+                // do nothing
             }
-        }, 3000);
+        }, 300);
 
     };
 

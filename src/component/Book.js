@@ -5,6 +5,7 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types";
 import BookBean from "../bean/BookBean";
+import {update} from "../BooksAPI";
 
 export default class Book extends Component {
 
@@ -12,13 +13,32 @@ export default class Book extends Component {
         /**
          * @see BookBean
          */
-        bookBean:PropTypes.object.isRequired,
+        bookBean: PropTypes.object.isRequired,
     };
 
-    static getStyle(bean){
+    shelfSelectValues = [
+        {value: "moveTo", title: "Move to...", disabled: true},
+        {value: "currentlyReading", title: "currently reading"},
+        {value: "wantToRead", title: "Want to Read",},
+        {value: "read", title: "read"},
+        {value: "none", title: "none"},
+    ];
+
+    constructor(props){
+        super(props);
+        let shelf = BookBean.getShelf(props.bookBean);
+        if(!shelf){
+            shelf = "none";
+        }
+        this.state = {
+            shelf:shelf,
+        }
+    }
+
+    getStyle(bean) {
         const thumbnail = BookBean.getSmallThumbnail(bean);
         return {
-            cover:{
+            cover: {
                 width: 128,
                 height: 193,
                 backgroundImage: `url("${thumbnail}")`,
@@ -26,21 +46,53 @@ export default class Book extends Component {
         }
     };
 
+    handleChange = (e) =>{
+        let shelf = e.target.value;
+        const bean = this.props.bookBean;
+        console.log(shelf);
+        update(bean, shelf).then((e)=>{
+            let array = e[shelf];
+            if(array){
+                let i = array.length-1;
+                for(; i >=0; i--){
+                    if(bean.id === array[i]){//update succeed
+                        console.log("handleChange3 update shelf succeed");
+                        // BookBean.setShelf(bean, shelf);
+                        this.setState({
+                            shelf,
+                        });
+                        break;
+                    }
+                }
+                if(i < 0){
+                    alert("change shelf failed");
+                }
+
+            }
+        });
+    };
+
     render() {
         const {bookBean} = this.props;
-        const style = Book.getStyle(bookBean);
+        const style = this.getStyle(bookBean);
+        // let {shelf} = this.state;
+        let opts = this.shelfSelectValues.map((e) => {
+            return (<option
+                key={"shelf_option_" + e.value}
+                value={e.value}
+                disabled={e.disabled}
+            >
+                {e.title}
+            </option>);
+        });
 
-        return (<div className="book"  >
+        return (<div className="book">
             <div className="book-top">
                 <a className="book-cover" style={style.cover}
                    href={BookBean.getInfoLink(bookBean)} target="_blank"/>
-                <div className="book-shelf-changer" >
-                    <select>
-                        <option value="none" disabled>Move to...</option>
-                        <option value="currentlyReading">Currently Reading</option>
-                        <option value="wantToRead">Want to Read</option>
-                        <option value="read">Read</option>
-                        <option value="none">None</option>
+                <div className="book-shelf-changer">
+                    <select name="shelf" value={this.state.shelf} onChange={this.handleChange}>
+                        {opts}
                     </select>
                 </div>
             </div>
