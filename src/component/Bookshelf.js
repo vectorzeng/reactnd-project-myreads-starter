@@ -3,15 +3,20 @@
  */
 import React from "react"
 import BookGrid from "./BookGrid";
+import PropTypes from "prop-types"
 
 
-function Bookshelf() {
+function Bookshelf({title,books}) {
     return (
         <div className="bookshelf">
-            <h2 className="bookshelf-title">Currently Reading</h2>
-            <BookGrid array={[1,2,3,4]}/>
+            <h2 className="bookshelf-title">{title}</h2>
+            <BookGrid books={books}/>
         </div>
     );
 }
+
+Bookshelf.propTypes = {
+    title: PropTypes.string.isRequired,
+};
 
 export default Bookshelf;

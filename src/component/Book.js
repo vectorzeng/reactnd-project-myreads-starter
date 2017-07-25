@@ -6,6 +6,7 @@ import React, {Component} from "react"
 import PropTypes from "prop-types";
 import BookBean from "../bean/BookBean";
 import {update} from "../BooksAPI";
+import {SHELVES_VALUES} from "../util/Util"
 
 export default class Book extends Component {
 
@@ -15,14 +16,6 @@ export default class Book extends Component {
          */
         bookBean: PropTypes.object.isRequired,
     };
-
-    shelfSelectValues = [
-        {value: "moveTo", title: "Move to...", disabled: true},
-        {value: "currentlyReading", title: "currently reading"},
-        {value: "wantToRead", title: "Want to Read",},
-        {value: "read", title: "read"},
-        {value: "none", title: "none"},
-    ];
 
     constructor(props){
         super(props);
@@ -76,7 +69,7 @@ export default class Book extends Component {
         const {bookBean} = this.props;
         const style = this.getStyle(bookBean);
         // let {shelf} = this.state;
-        let opts = this.shelfSelectValues.map((e) => {
+        let opts = SHELVES_VALUES.map((e) => {
             return (<option
                 key={"shelf_option_" + e.value}
                 value={e.value}
@@ -101,3 +94,5 @@ export default class Book extends Component {
         </div>);
     }
 }
+
+
