@@ -38,4 +38,8 @@ export default class BookBean{
     static getId(b){
         if(b) return b.id;
     }
+
+    static equals(b1, b2){
+        if(b1 && b2) return b1.id === b2.id;
+    }
 }

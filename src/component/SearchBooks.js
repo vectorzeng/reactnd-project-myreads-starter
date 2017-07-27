@@ -7,6 +7,9 @@ import {PATH_ROOT} from "../path/RoutePath";
 import {getAll, search} from "../BooksAPI";
 import BookGrid from "./BookGrid";
 import ReactLoading from "react-loading";
+import MY_BOOKS_UPDATER from "../util/MyBooksUpdater";
+import BookBean from "../bean/BookBean";
+
 
 export default class SearchBooks extends Component {
 
@@ -17,18 +20,55 @@ export default class SearchBooks extends Component {
             kw:"",
             isLoading:false,
         };
+        this.isMyBooksReady = false,
+        this.myBooks = null;
+    }
+
+    componentDidMount(){
+        this.isMyBooksReady = false;
+        MY_BOOKS_UPDATER.getAll((succeed, myBooks)=>{
+            this.isMyBooksReady = true;
+            if(succeed) this.myBooks = myBooks;
+            this.updateBooks(this.state.books);
+        });
     }
 
 
+    /**
+     * @param forceUpdate
+     *   if false then must be both myBooks and books data is ready
+     */
     updateBooks(books){
         console.log("---------SearchBooks", books);
-        if(!books || books.error){
-            books = null;//get nothing
+
+        //wait for myBooks's data to ready,
+        if(!this.isMyBooksReady){
+            return;
         }
+        if(!books || books.error || books.length <= 0){
+            books = null;
+        }else{
+            //update shelf
+            let myBooks = this.myBooks;
+            books = books.map((b) => {
+                if(myBooks){
+                    for(let i = 0; i < myBooks.length; i++){
+                        if(BookBean.equals(b, myBooks[i])){
+                            BookBean.setShelf(b, BookBean.getShelf(myBooks[i]));
+                            return b;
+                        }
+                    }
+                }
+                BookBean.setShelf(b, "none");
+                return b;
+            });
+        }
+
         this.setState({
             books:books,
             isLoading:false,
         });
+
     }
 
     onChangeKw=(event)=>{

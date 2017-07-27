@@ -9,6 +9,7 @@ import {getAll} from "../BooksAPI";
 import {getShelfTitle} from "../util/Util";
 import BOOK_UPDATER from "../util/BookUpdater";
 import BookBean from "../bean/BookBean";
+import MY_BOOKS_UPDATER from "../util/MyBooksUpdater";
 
 export default class MyReads extends Component{
 
@@ -51,9 +52,9 @@ export default class MyReads extends Component{
 
     componentDidMount(){
         BOOK_UPDATER.setListener(this.onBookUpdate);
-        getAll().then((books)=>{
+        MY_BOOKS_UPDATER.fetchAll((succeed, books)=>{
             let shelves = {};
-            if(books && !books.error){
+            if(succeed){
                 books.map((e)=>{
                     if(e.shelf){
                         if(!shelves[e.shelf]){
